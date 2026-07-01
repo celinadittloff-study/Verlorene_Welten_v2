@@ -1,9 +1,9 @@
 /* ==========================================================================
-   Verlorene Welten — detail.js (detail.html: Ebene 4) — v2
+   Verlorene Welten — detail.js (detail.html) — v3 (Feedback-Runde 2)
    ========================================================================== */
 
 let popChart;
-let numPop = []; // { jahr, wert, einheit, quelle }
+let numPop = [];
 
 function qs(name) {
   return new URLSearchParams(window.location.search).get(name);
@@ -12,6 +12,15 @@ function qs(name) {
 function setText(id, value, fallback = '—') {
   const el = document.getElementById(id);
   if (el) el.textContent = (value === null || value === undefined || value === '') ? fallback : value;
+}
+
+function formatJahr(n) {
+  return Math.round(n).toString(); // niemals Locale-Formatierung -> kein "2.011"
+}
+
+function formatZahl(n) {
+  // Für die KPI-Kachel: normale deutsche Tausendertrennung ist hier gewünscht (Anzeige der Größenordnung)
+  return Math.round(n).toLocaleString('de-DE');
 }
 
 function renderThreatCard(b) {
@@ -25,19 +34,38 @@ function renderThreatCard(b) {
     </div>`;
 }
 
-/* Regler bewegt sich nur über die Indizes der tatsächlich vorliegenden Jahre —
-   keine Interpolation, keine "erfundenen" Zwischenwerte. */
+function animiereKpi(elId, von, bis) {
+  const el = document.getElementById(elId);
+  const dauer = 500;
+  const start = performance.now();
+  function frame(now) {
+    const t = Math.min(1, (now - start) / dauer);
+    const wert = von + (bis - von) * (1 - Math.pow(1 - t, 2));
+    el.textContent = formatZahl(wert);
+    if (t < 1) requestAnimationFrame(frame);
+    else el.textContent = formatZahl(bis);
+  }
+  requestAnimationFrame(frame);
+}
+
+let letzterAnzahlWert = null;
+
 function updateZeitregler(index) {
   const punkt = numPop[index];
   if (!punkt) return;
 
-  document.getElementById('zeitregler-jahr').textContent = punkt.jahr;
-  document.getElementById('chart-quelle').textContent = punkt.quelle ? `Quelle: ${punkt.quelle}` : '';
+  document.getElementById('kpi-jahr').textContent = formatJahr(punkt.jahr);
+  animiereKpi('kpi-anzahl', letzterAnzahlWert ?? punkt.wert, punkt.wert);
+  letzterAnzahlWert = punkt.wert;
 
   if (popChart) {
     popChart.data.datasets[1].data = [{ x: punkt.jahr, y: punkt.wert }];
     popChart.update('none');
   }
+
+  document.querySelectorAll('#daten-tabelle tbody tr').forEach((tr, i) => {
+    tr.classList.toggle('aktiv', i === index);
+  });
 }
 
 async function init() {
@@ -58,7 +86,6 @@ async function init() {
 
   document.documentElement.setAttribute('data-theme', art.typ === 'tier' ? 'tiere' : 'pflanzen');
 
-  // Header
   const hauptbild = bilder[0]?.url || '';
   document.getElementById('detail-header').style.backgroundImage = `url("${hauptbild}")`;
   setText('name-de', art.name_de);
@@ -74,13 +101,11 @@ async function init() {
       `<img src="${b.url}" alt="${art.name_de}" loading="lazy">`).join('');
   }
 
-  // Was ist das für eine Art?
   setText('botschafter-text', art.botschafter_text, '');
   setText('fact-gruppe', art.gruppe);
   setText('fact-ernaehrung', art.ernaehrung);
   setText('fact-seit', art.existiert_seit);
 
-  // Sozialverhalten ergibt bei Pflanzen keinen Sinn -> Kachel komplett entfernen
   if (art.typ === 'pflanze') {
     document.getElementById('fact-sozial-card').remove();
   } else {
@@ -90,10 +115,10 @@ async function init() {
   setText('prose-besonderheiten', art.besonderheiten, 'Keine Angaben hinterlegt.');
   setText('prose-oekologie', art.oekologische_rolle, 'Keine Angaben hinterlegt.');
 
-  // Historische Entwicklung — nur echte Datenpunkte, keine Interpolation
+  // Historische Entwicklung
   numPop = populationsdaten
     .filter(p => p.wert !== null && p.wert !== undefined)
-    .map(p => ({ jahr: p.jahr, wert: Number(p.wert), einheit: p.einheit, quelle: p.quelle }))
+    .map(p => ({ jahr: p.jahr, wert: Number(p.wert), einheit: p.einheit, kontext: p.kontext, quelle: p.quelle }))
     .sort((a, b) => a.jahr - b.jahr);
 
   const slider = document.getElementById('zeitregler');
@@ -103,8 +128,8 @@ async function init() {
     slider.max = numPop.length - 1;
     slider.step = 1;
     slider.value = 0;
-    document.getElementById('jahr-min').textContent = numPop[0].jahr;
-    document.getElementById('jahr-max').textContent = numPop[numPop.length - 1].jahr;
+    document.getElementById('jahr-min').textContent = formatJahr(numPop[0].jahr);
+    document.getElementById('jahr-max').textContent = formatJahr(numPop[numPop.length - 1].jahr);
   } else {
     slider.disabled = true;
     document.querySelector('.timeline-controls').style.display = 'none';
@@ -129,13 +154,12 @@ async function init() {
           pointBackgroundColor: 'rgb(25,138,188)',
         },
         {
-          // Rein visuelle Markierung des aktuell gewählten Jahres — nicht interaktiv, nicht ziehbar
           label: 'Ausgewähltes Jahr',
           data: [],
           type: 'scatter',
           pointRadius: 8,
           pointHoverRadius: 8,
-          pointHitRadius: 0,          // reagiert nicht auf Maus/Touch -> kann nicht "gegriffen" werden
+          pointHitRadius: 0,
           backgroundColor: '#e0453a',
           borderColor: '#fff',
           borderWidth: 2,
@@ -144,35 +168,53 @@ async function init() {
     },
     options: {
       responsive: true,
-      events: ['mousemove', 'mouseout'], // keine Klick-/Drag-Interaktion auf dem Chart selbst
+      events: ['mousemove', 'mouseout'],
       scales: {
         x: {
           type: 'linear',
           title: { display: true, text: 'Jahre' },
-          ticks: {
-            stepSize: 1,
-            callback: (value) => Math.round(value).toString(), // verhindert "2.011" durch Locale-Formatierung
-          },
+          ticks: { stepSize: 1, callback: (value) => formatJahr(value) },
         },
         y: { title: { display: true, text: 'Individuen' } },
       },
-      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            // Ohne diesen Override formatiert Chart.js die x-Achse Locale-abhängig -> "2.011" statt "2011"
+            title: (items) => 'Jahr ' + formatJahr(items[0].parsed.x),
+          },
+        },
+      },
       interaction: { intersect: false, mode: 'nearest' },
     },
   });
 
-  if (numPop.length >= 2) updateZeitregler(0);
-  else if (numPop.length === 1) {
+  // Quellen-/Datentabelle
+  const tbody = document.querySelector('#daten-tabelle tbody');
+  tbody.innerHTML = numPop.map(p => `
+    <tr>
+      <td class="jahr">${formatJahr(p.jahr)}</td>
+      <td>${p.kontext || '—'}</td>
+      <td class="quelle">${p.quelle || '—'}</td>
+    </tr>`).join('');
+
+  if (numPop.length >= 2) {
+    updateZeitregler(0);
+  } else if (numPop.length === 1) {
     popChart.data.datasets[1].data = [{ x: numPop[0].jahr, y: numPop[0].wert }];
     popChart.update();
-    document.getElementById('zeitregler-jahr').textContent = numPop[0].jahr;
+    document.getElementById('kpi-jahr').textContent = formatJahr(numPop[0].jahr);
+    document.getElementById('kpi-anzahl').textContent = formatZahl(numPop[0].wert);
+  } else {
+    document.querySelector('.kpi-row').style.display = 'none';
+    document.querySelector('.pop-chart-wrap').style.display = 'none';
   }
 
-  // Bedrohungen
   document.getElementById('threat-cards').innerHTML =
     bedrohungen.map(renderThreatCard).join('') || '<p>Keine Bedrohungsdaten hinterlegt.</p>';
 
-  // Schutzprojekt
   setText('schutz-name', art.schutzprojekt_name);
   setText('schutz-text', art.hauptbedrohung ? `Hauptbedrohung: ${art.hauptbedrohung}` : '', '');
   const schutzLink = document.getElementById('schutz-link');
