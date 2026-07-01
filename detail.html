@@ -1,16 +1,23 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="tiere" data-mode="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verlorene Welten — Artdetails</title>
+<script>
+  (function () {
+    var t = localStorage.getItem('vw_theme') || 'tier';
+    var m = localStorage.getItem('vw_mode') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', t === 'tier' ? 'tiere' : 'pflanzen');
+    document.documentElement.setAttribute('data-mode', m);
+  })();
+</script>
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
-<body data-theme="tiere" data-mode="dark">
+<body>
 
 <div class="controlbar">
-  <button id="toggle-mode">🌙 Dunkel</button>
+  <button id="toggle-mode">Dunkel</button>
 </div>
 
 <header class="detail-header" id="detail-header">
@@ -24,48 +31,56 @@
 
 <main id="content" style="display:none">
 
-  <!-- Abschnitt 1: Bildergalerie (falls mehrere Bilder vorhanden) -->
   <section class="detail-section" id="galerie-section" style="display:none">
     <div class="gallery" id="galerie"></div>
   </section>
 
-  <!-- Abschnitt 2: Allgemeine Info -->
+  <!-- Abschnitt: Was ist das für eine Art? -->
   <section class="detail-section">
     <h2>Was ist das für eine Art?</h2>
     <p id="botschafter-text" style="font-size:1.1rem"></p>
-    <div class="fact-grid">
+
+    <div class="fact-grid" id="fact-grid">
       <div class="fact-card"><div class="label">Gruppe</div><div class="value" id="fact-gruppe">—</div></div>
       <div class="fact-card"><div class="label">Ernährung</div><div class="value" id="fact-ernaehrung">—</div></div>
-      <div class="fact-card"><div class="label">Sozialverhalten</div><div class="value" id="fact-sozial">—</div></div>
+      <div class="fact-card" id="fact-sozial-card"><div class="label">Sozialverhalten</div><div class="value" id="fact-sozial">—</div></div>
       <div class="fact-card"><div class="label">Existiert seit</div><div class="value" id="fact-seit">—</div></div>
-      <div class="fact-card"><div class="label">Besonderheiten</div><div class="value" id="fact-besonderheiten">—</div></div>
-      <div class="fact-card"><div class="label">Ökologische Rolle</div><div class="value" id="fact-oekologie">—</div></div>
+    </div>
+
+    <div class="prose-block">
+      <h3>Besonderheiten</h3>
+      <p id="prose-besonderheiten"></p>
+    </div>
+    <div class="prose-block">
+      <h3>Ökologische Rolle</h3>
+      <p id="prose-oekologie"></p>
     </div>
   </section>
 
-  <!-- Abschnitt 3: Karte mit Zeitregler + Populationschart -->
+  <!-- Abschnitt: Historische Entwicklung -->
   <section class="detail-section">
-    <h2>Was ist ihr passiert?</h2>
-    <p>Bewege den Regler und beobachte, wie Verbreitungsgebiet und Bestand gemeinsam schrumpfen.</p>
-    <div id="detailkarte"></div>
+    <h2 class="chart-heading">Historische Entwicklung</h2>
+    <p class="chart-sub">Bewege den Regler über die dokumentierten Jahre — der Punkt zeigt den jeweils erfassten Bestand.</p>
+
     <div class="timeline-controls">
-      <span style="font-size:0.8rem; color:var(--text-muted)">Historisch</span>
-      <input type="range" id="zeitregler" min="0" max="100" value="0">
-      <span style="font-size:0.8rem; color:var(--text-muted)">Heute</span>
+      <input type="range" id="zeitregler" min="0" max="0" value="0" step="1">
     </div>
+    <div class="timeline-labels"><span id="jahr-min"></span><span id="jahr-max"></span></div>
     <div class="timeline-year" id="zeitregler-jahr">—</div>
+
     <div class="pop-chart-wrap">
-      <canvas id="pop-chart" height="90"></canvas>
+      <canvas id="pop-chart" height="110"></canvas>
     </div>
+    <p class="chart-note" id="chart-quelle"></p>
   </section>
 
-  <!-- Abschnitt 4: Bedrohungen -->
+  <!-- Abschnitt: Bedrohungen -->
   <section class="detail-section">
     <h2>Hauptbedrohungen</h2>
     <div class="threat-cards" id="threat-cards"></div>
   </section>
 
-  <!-- Abschnitt 5: Schutzprojekt -->
+  <!-- Abschnitt: Schutzprojekt -->
   <section class="detail-section">
     <h2>Was wird getan?</h2>
     <div class="project-card">
@@ -84,7 +99,6 @@
   Verlorene Welten — Interaktive Medien (INME), Bachelor Medienmanagement, Sommersemester 2026.
 </footer>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="js/config.js"></script>
