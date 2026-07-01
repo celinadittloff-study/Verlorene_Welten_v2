@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Verlorene Welten — main.js (index.html: Ebene 1, 2, 3)  — v2
+   Verlorene Welten — main.js (index.html) — v3 (Feedback-Runde 2)
    ========================================================================== */
 
 let map, markersLayer;
@@ -7,11 +7,34 @@ let alleArten = [];
 let aktiveRegion = 'Alle';
 let aktiveKategorien = new Set(['CR', 'EN', 'VU']);
 
-const REGIONEN = ['Alle', 'Afrika', 'Asien', 'Amerika', 'Ozeanien', 'Ozean', 'Europa'];
+const REGIONEN = ['Alle', 'Afrika', 'Asien', 'Amerika', 'Ozeanien', 'Europa']; // nur Kontinente, kein "Ozean"
 const GESAMTZAHL = 47000;
 
+const CAUSES = {
+  tier: {
+    heading: 'Warum sterben Tierarten aus?',
+    items: [
+      ['Wilderei', 'Illegaler Handel mit Elfenbein, Hörnern und Fellen — von Amur-Leopard bis Waldelefant.'],
+      ['Habitatverlust', 'Regenwälder und Lebensräume weichen Landwirtschaft, Holzeinschlag und Siedlungen.'],
+      ['Klimawandel', 'Schmelzendes Meereis, veränderte Meeresströmungen und Wetterextreme bedrohen ganze Ökosysteme.'],
+      ['Beifang & Überfischung', 'Vaquita, Lederschildkröte und Europäischer Aal sterben oft unbeabsichtigt in Fischernetzen.'],
+      ['Krankheiten', 'Eingeschleppte Erreger wie Staupe oder Pilzinfektionen können kleine Restpopulationen auslöschen.'],
+    ],
+  },
+  pflanze: {
+    heading: 'Warum sterben Pflanzenarten aus?',
+    items: [
+      ['Habitatverlust', 'Abholzung und Umwandlung in Acker- oder Weideland zerstören Wälder und Trockengebiete.'],
+      ['Illegale Wildentnahme', 'Seltene Sukkulenten, Orchideen und alte Bäume werden für den Sammlermarkt geplündert.'],
+      ['Klimawandel', 'Veränderte Niederschlagsmuster und Dürren gefährden hochspezialisierte Pflanzen.'],
+      ['Krankheiten & Schädlinge', 'Eingeschleppte Pilze wie Kauri-Dieback zerstören ganze Baumbestände ohne Heilmittel.'],
+      ['Fehlende Verjüngung', 'Weidetiere fressen Sämlinge, bevor sie nachwachsen können — Bestände altern ohne Nachwuchs.'],
+    ],
+  },
+};
+
 function aktuellerTyp() {
-  return ThemeManager.getTheme(); // 'tier' | 'pflanze'
+  return ThemeManager.getTheme();
 }
 
 /* ---------- Ebene 1: Hero ---------- */
@@ -26,14 +49,11 @@ function animiereZahl() {
   const start = performance.now();
   function frame(now) {
     const t = Math.min(1, (now - start) / dauer);
-    const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+    const eased = 1 - Math.pow(1 - t, 3);
     const wert = Math.floor(eased * GESAMTZAHL);
     el.textContent = wert.toLocaleString('de-DE') + (t >= 1 ? '+' : '');
-    if (t < 1) {
-      requestAnimationFrame(frame);
-    } else {
-      el.classList.add('done');
-    }
+    if (t < 1) requestAnimationFrame(frame);
+    else el.classList.add('done');
   }
   requestAnimationFrame(frame);
 }
@@ -62,8 +82,18 @@ async function onThemeChange() {
   document.getElementById('toggle-tier').classList.toggle('active', aktuellerTyp() === 'tier');
   document.getElementById('toggle-pflanze').classList.toggle('active', aktuellerTyp() === 'pflanze');
   document.getElementById('typ-label').textContent = aktuellerTyp() === 'tier' ? 'Tierarten' : 'Pflanzenarten';
+  renderCauses();
   await initHero();
   renderMarker();
+}
+
+/* ---------- Warum stirbt so viel aus? (typabhängig) ---------- */
+function renderCauses() {
+  const typ = aktuellerTyp();
+  const data = CAUSES[typ];
+  document.getElementById('cause-heading').textContent = data.heading;
+  document.getElementById('cause-grid').innerHTML = data.items.map(([titel, text]) =>
+    `<div class="cause-card"><strong>${titel}</strong>${text}</div>`).join('');
 }
 
 /* ---------- Ebene 2: Weltkarte ---------- */
@@ -89,6 +119,14 @@ function passtFilter(art) {
   return true;
 }
 
+/** Extrahiert aus einem Bestandstext nur die führende Zahl/Spanne, z.B.
+ *  "~13.846 (2016)" -> "~13.846", "< 50 bekannte Pflanzen (Philippines)" -> "< 50" */
+function nurZahl(text) {
+  if (!text) return 'unbekannt';
+  const match = text.match(/^[~<>]?\s?[\d.,]+(\s?[–-]\s?[\d.,]+)?\s?(Mio\.|Mrd\.)?\+?/);
+  return match && match[0].trim() ? match[0].trim() : text;
+}
+
 function popupHtml(art) {
   const farbe = art.kategorien?.farbe_hex || '#999';
   return `
@@ -97,10 +135,7 @@ function popupHtml(art) {
       <span class="badge" style="background:${farbe}">${art.kategorie} — ${art.kategorien?.label || ''}</span>
       <div class="name-de">${art.name_de}</div>
       <div class="name-sci">${art.name_wiss || ''}</div>
-      <div class="popup-facts">
-        <div><span class="k">Bestand: </span><span class="v">${art.population_text || 'unbekannt'}</span></div>
-        <div><span class="k">Lebensraum: </span><span class="v">${art.land || art.region || ''}</span></div>
-      </div>
+      <div class="bestand"><span class="k">Bestand: </span><span class="v">${nurZahl(art.population_text)}</span></div>
       <a class="btn-more" href="detail.html?id=${art.id}">Mehr erfahren →</a>
     </div>`;
 }
@@ -116,12 +151,26 @@ function renderMarker() {
     const farbe = art.kategorien?.farbe_hex || '#999';
     const icon = L.divIcon({ className: '', html: `<div class="art-marker" style="background:${farbe}"></div>`, iconSize: [14, 14] });
     const m = L.marker([art.lat, art.lng], { icon }).addTo(markersLayer);
+    m.bindPopup(popupHtml(art), { closeButton: true, autoPan: true });
 
-    // Popup bei Hover statt Klick (mit kurzer Verzögerung beim Verlassen, damit es nicht flackert)
-    m.bindPopup(popupHtml(art), { closeButton: true });
     let closeTimer;
+    let gepinnt = false;
+
     m.on('mouseover', () => { clearTimeout(closeTimer); m.openPopup(); });
-    m.on('mouseout', () => { closeTimer = setTimeout(() => m.closePopup(), 200); });
+    m.on('mouseout', () => {
+      if (gepinnt) return;
+      closeTimer = setTimeout(() => m.closePopup(), 250);
+    });
+    // Klick "pinnt" das Popup dauerhaft offen, bis anderswo geklickt wird
+    m.on('click', () => { gepinnt = true; clearTimeout(closeTimer); m.openPopup(); });
+    m.on('popupclose', () => { gepinnt = false; });
+    // Wenn die Maus die Karte selbst erreicht (statt nur den Marker), Timer stoppen
+    m.on('popupopen', () => {
+      const el = m.getPopup().getElement();
+      if (!el) return;
+      el.addEventListener('mouseenter', () => clearTimeout(closeTimer));
+      el.addEventListener('mouseleave', () => { if (!gepinnt) closeTimer = setTimeout(() => m.closePopup(), 250); });
+    });
   });
 
   document.getElementById('sichtbar-count').textContent = sichtbar.length;
@@ -176,11 +225,27 @@ function initScrollNudge() {
   });
 }
 
+/* ---------- Scroll-Reveal-Animationen ---------- */
+function initScrollReveal() {
+  const targets = document.querySelectorAll('.reveal, .reveal-stagger');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  targets.forEach(t => obs.observe(t));
+}
+
 /* ---------- Start ---------- */
 (async function start() {
   initControlbar();
   initScrollNudge();
   animiereZahl();
+  renderCauses();
+  initScrollReveal();
   await initHero();
   initMap();
   initFilters();
