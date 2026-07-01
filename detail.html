@@ -35,7 +35,7 @@
     <div class="gallery" id="galerie"></div>
   </section>
 
-  <!-- Abschnitt: Was ist das für eine Art? -->
+  <!-- Was ist das für eine Art? -->
   <section class="detail-section">
     <h2>Was ist das für eine Art?</h2>
     <p id="botschafter-text" style="font-size:1.1rem"></p>
@@ -57,30 +57,44 @@
     </div>
   </section>
 
-  <!-- Abschnitt: Historische Entwicklung -->
+  <!-- Historische Entwicklung -->
   <section class="detail-section">
-    <h2 class="chart-heading">Historische Entwicklung</h2>
-    <p class="chart-sub">Bewege den Regler über die dokumentierten Jahre — der Punkt zeigt den jeweils erfassten Bestand.</p>
+    <h2>Historische Entwicklung</h2>
+    <p class="chart-sub">Bewege den Regler über die dokumentierten Jahre.</p>
 
     <div class="timeline-controls">
       <input type="range" id="zeitregler" min="0" max="0" value="0" step="1">
     </div>
     <div class="timeline-labels"><span id="jahr-min"></span><span id="jahr-max"></span></div>
-    <div class="timeline-year" id="zeitregler-jahr">—</div>
+
+    <div class="kpi-row">
+      <div class="kpi-tile">
+        <div class="kpi-label">Anzahl</div>
+        <div class="kpi-value" id="kpi-anzahl">—</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Jahr</div>
+        <div class="kpi-value" id="kpi-jahr">—</div>
+      </div>
+    </div>
 
     <div class="pop-chart-wrap">
       <canvas id="pop-chart" height="110"></canvas>
     </div>
-    <p class="chart-note" id="chart-quelle"></p>
+
+    <table class="data-table" id="daten-tabelle">
+      <thead><tr><th>Jahr</th><th>Kontext</th><th>Quelle</th></tr></thead>
+      <tbody></tbody>
+    </table>
   </section>
 
-  <!-- Abschnitt: Bedrohungen -->
+  <!-- Bedrohungen -->
   <section class="detail-section">
     <h2>Hauptbedrohungen</h2>
     <div class="threat-cards" id="threat-cards"></div>
   </section>
 
-  <!-- Abschnitt: Schutzprojekt -->
+  <!-- Schutzprojekt -->
   <section class="detail-section">
     <h2>Was wird getan?</h2>
     <div class="project-card">
