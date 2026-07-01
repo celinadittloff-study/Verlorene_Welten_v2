@@ -6,7 +6,6 @@
 <title>Verlorene Welten — 47.000+ bedrohte Arten, 24 Botschafter</title>
 <meta name="description" content="Eine interaktive Karte bedrohter Tier- und Pflanzenarten. 24 Botschafter stellvertretend für über 47.000 bedrohte Spezies weltweit.">
 <script>
-  // Gespeicherte Theme/Modus-Wahl sofort anwenden, bevor irgendetwas gerendert wird (kein Flackern)
   (function () {
     var t = localStorage.getItem('vw_theme') || 'tier';
     var m = localStorage.getItem('vw_mode') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
@@ -42,17 +41,18 @@
   </button>
 </section>
 
-<!-- ================= BOTSCHAFTER-INTRO (vor der Karte) ================= -->
-<section class="botschafter-intro">
-  <h2>24 Botschafter, stellvertretend für 47.000+ Arten</h2>
-  <p>Wir zeigen nicht alle bedrohten Arten — das wäre eine Liste, keine Geschichte. Stattdessen begleiten dich zwölf Tiere und zwölf Pflanzen, jede mit einer eigenen Geschichte, einer eigenen Bedrohung und einer eigenen Chance auf Erholung. Klicke dich durch die Karte und lerne sie kennen.</p>
+<!-- ================= BOTSCHAFTER-INTRO ================= -->
+<section class="botschafter-intro reveal">
+  <p class="kicker">24 Botschafter</p>
+  <p class="sub">stellvertretend für über 47.000 Arten</p>
+  <p class="desc">Wir zeigen nicht alle bedrohten Arten — das wäre eine Liste, keine Geschichte. Stattdessen begleiten dich zwölf Tiere und zwölf Pflanzen, jede mit einer eigenen Geschichte, einer eigenen Bedrohung und einer eigenen Chance auf Erholung.</p>
 </section>
 
 <!-- ================= EBENE 2: WELTKARTE ================= -->
 <section class="map-section" id="karte-anchor">
-  <div class="map-header">
+  <div class="map-header reveal">
     <h2>Wo unsere Botschafter leben</h2>
-    <p><span id="sichtbar-count">12</span> von <span id="gesamt-count">12</span> <span id="typ-label">Tierarten</span> sichtbar — filtere nach Region oder Bedrohungsstufe. Fahre mit der Maus über einen Punkt für Details.</p>
+    <p><span id="sichtbar-count">12</span> von <span id="gesamt-count">12</span> <span id="typ-label">Tierarten</span> sichtbar — filtere nach Kontinent oder Bedrohungsstufe. Fahre mit der Maus über einen Punkt für Details, klicke ihn an, um das Popup zu fixieren.</p>
   </div>
 
   <div class="filters">
@@ -60,9 +60,9 @@
   </div>
   <div class="filters">
     <div class="filter-group" id="filter-kategorie">
-      <button class="pill active" data-cat="CR"><span class="dot" style="background:#e0453a"></span>CR — Kritisch gefährdet</button>
-      <button class="pill active" data-cat="EN"><span class="dot" style="background:#d97d1f"></span>EN — Gefährdet</button>
-      <button class="pill active" data-cat="VU"><span class="dot" style="background:#c9a412"></span>VU — Anfällig</button>
+      <button class="pill active" data-cat="CR">CR — Kritisch gefährdet</button>
+      <button class="pill active" data-cat="EN">EN — Gefährdet</button>
+      <button class="pill active" data-cat="VU">VU — Anfällig</button>
     </div>
   </div>
 
@@ -72,53 +72,56 @@
 
 <!-- ================= INFOBEREICH ================= -->
 <section class="info-section">
-  <div class="info-grid">
-    <div class="info-block">
-      <h3>Was ist die IUCN Red List?</h3>
-      <p>Die weltweit wichtigste Datenbank für den Gefährdungsstatus von Arten. Seit 1964 bewertet die International Union for Conservation of Nature (IUCN) systematisch, wie stark eine Art vom Aussterben bedroht ist — inzwischen über 172.600 Arten, jährlich aktualisiert.</p>
-      <p><a href="https://www.iucnredlist.org" target="_blank" rel="noopener">iucnredlist.org →</a></p>
-    </div>
-    <div class="info-block">
+  <div class="info-stack">
+
+    <!-- 1. CR/EN/VU zuerst -->
+    <div class="info-block reveal">
       <h3>Was bedeuten CR, EN, VU?</h3>
-      <p>Die Kürzel stammen aus dem Englischen und bilden gemeinsam mit vier weiteren Stufen die komplette IUCN-Gefährdungsskala. Jede Stufe ist an mehrere Kriterien geknüpft — unter anderem Bestandsrückgang und Anzahl geschlechtsreifer Individuen:</p>
-      <div class="iucn-detail">
-        <div class="iucn-row">
-          <span class="dot" style="background:var(--cr)"></span>
-          <div><strong>CR — Critically Endangered (Vom Aussterben bedroht)</strong>
-          <span class="crit">Bestand meist unter 250 geschlechtsreifen Tieren oder ein Rückgang von 80–90 % innerhalb von 10 Jahren bzw. drei Generationen.</span></div>
+      <p>Die Kürzel stammen aus dem Englischen und bilden gemeinsam mit vier weiteren Stufen die komplette Gefährdungsskala der IUCN Red List. Jede Stufe ist an mehrere Kriterien geknüpft — unter anderem Bestandsrückgang und Anzahl geschlechtsreifer Individuen:</p>
+      <div class="kategorie-boxes reveal-stagger">
+        <div class="kategorie-box CR">
+          <div class="code">CR</div>
+          <div class="full">Critically Endangered — Vom Aussterben bedroht</div>
+          <div class="crit">Meist unter 250 geschlechtsreife Tiere oder ein Rückgang von 80–90 % innerhalb von 10 Jahren bzw. drei Generationen.</div>
         </div>
-        <div class="iucn-row">
-          <span class="dot" style="background:var(--en)"></span>
-          <div><strong>EN — Endangered (Stark gefährdet)</strong>
-          <span class="crit">Bestand meist unter 2.500 geschlechtsreifen Tieren oder ein Rückgang von 50–70 % im selben Zeitraum.</span></div>
+        <div class="kategorie-box EN">
+          <div class="code">EN</div>
+          <div class="full">Endangered — Stark gefährdet</div>
+          <div class="crit">Meist unter 2.500 geschlechtsreife Tiere oder ein Rückgang von 50–70 % im selben Zeitraum.</div>
         </div>
-        <div class="iucn-row">
-          <span class="dot" style="background:var(--vu)"></span>
-          <div><strong>VU — Vulnerable (Anfällig)</strong>
-          <span class="crit">Bestand meist unter 10.000 geschlechtsreifen Tieren oder ein Rückgang von 30–50 % im selben Zeitraum.</span></div>
+        <div class="kategorie-box VU">
+          <div class="code">VU</div>
+          <div class="full">Vulnerable — Anfällig</div>
+          <div class="crit">Meist unter 10.000 geschlechtsreife Tiere oder ein Rückgang von 30–50 % im selben Zeitraum.</div>
         </div>
       </div>
-      <p style="margin-top:14px; font-size:0.85rem">Vereinfacht dargestellt — die IUCN prüft zusätzlich Kriterien wie Verbreitungsgebiet und Aussterberisiko. Dieselben Farben findest du auf der Karte wieder.</p>
+      <p style="margin-top:14px; font-size:0.85rem">Vereinfacht dargestellt — die IUCN prüft zusätzlich Kriterien wie Verbreitungsgebiet und Aussterberisiko.</p>
     </div>
-    <div class="info-block wide">
-      <h3>Warum stirbt so viel aus?</h3>
-      <div class="cause-grid">
-        <div class="cause-card"><strong>Habitatverlust</strong>Wälder, Feuchtgebiete und Prärien weichen Landwirtschaft und Siedlungen.</div>
-        <div class="cause-card"><strong>Klimawandel</strong>Veränderte Temperaturen und Niederschläge verschieben oder zerstören Lebensräume.</div>
-        <div class="cause-card"><strong>Wilderei</strong>Illegaler Handel mit Tierteilen, Hörnern und seltenen Pflanzen.</div>
-        <div class="cause-card"><strong>Überfischung</strong>Industrielle Fischerei entnimmt Bestände schneller, als sie sich erholen können.</div>
-        <div class="cause-card"><strong>Invasive Arten</strong>Eingeschleppte Räuber und Konkurrenten ohne natürliche Feinde.</div>
+
+    <!-- 2. Warum stirbt so viel aus (typabhängig, siehe main.js) -->
+    <div class="info-block reveal">
+      <h3 id="cause-heading">Warum sterben Tierarten aus?</h3>
+      <div class="cause-grid reveal-stagger" id="cause-grid"></div>
+    </div>
+
+    <!-- 3. IUCN Red List | Was kannst du tun -->
+    <div class="two-col">
+      <div class="info-block reveal">
+        <h3>Was ist die IUCN Red List?</h3>
+        <p>Die weltweit wichtigste Datenbank für den Gefährdungsstatus von Arten. Seit 1964 bewertet die International Union for Conservation of Nature (IUCN) systematisch, wie stark eine Art vom Aussterben bedroht ist — inzwischen über 172.600 Arten, jährlich aktualisiert.</p>
+        <p><a href="https://www.iucnredlist.org" target="_blank" rel="noopener">iucnredlist.org →</a></p>
+      </div>
+      <div class="info-block reveal">
+        <h3>Was kannst du tun?</h3>
+        <p>Schutz beginnt mit Wissen. Informiere dich, unterstütze Naturschutzorganisationen, und triff bewusste Konsumentscheidungen — vom Kaffee bis zum Palmöl.</p>
+        <div class="cta-links">
+          <a href="https://www.worldwildlife.org" target="_blank" rel="noopener">WWF →</a>
+          <a href="https://www.iucnredlist.org/campaigns" target="_blank" rel="noopener">IUCN Kampagnen →</a>
+          <a href="https://www.iucn.org/our-work/topic/nature-based-solutions" target="_blank" rel="noopener">Naturschutz vor Ort →</a>
+        </div>
       </div>
     </div>
-    <div class="info-block wide">
-      <h3>Was kannst du tun?</h3>
-      <p>Schutz beginnt mit Wissen. Informiere dich, unterstütze Naturschutzorganisationen, und triff bewusste Konsumentscheidungen — vom Kaffee bis zum Palmöl.</p>
-      <div class="cta-links">
-        <a href="https://www.worldwildlife.org" target="_blank" rel="noopener">WWF →</a>
-        <a href="https://www.iucnredlist.org/campaigns" target="_blank" rel="noopener">IUCN Kampagnen →</a>
-        <a href="https://www.iucn.org/our-work/topic/nature-based-solutions" target="_blank" rel="noopener">Naturschutz vor Ort →</a>
-      </div>
-    </div>
+
   </div>
 </section>
 
