@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verlorene Welten — 47.000+ bedrohte Arten, 24 Botschafter</title>
+<meta name="description" content="Eine interaktive Karte bedrohter Tier- und Pflanzenarten. 24 Botschafter stellvertretend für über 47.000 bedrohte Spezies weltweit.">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body data-theme="tiere" data-mode="dark">
+
+<div class="controlbar">
+  <button id="toggle-tier">🐾 Tiere</button>
+  <button id="toggle-pflanze">🌱 Pflanzen</button>
+  <div class="sep"></div>
+  <button id="toggle-mode">🌙 Dunkel</button>
+</div>
+
+<!-- ================= EBENE 1: EINSTIEGSSEITE ================= -->
+<section class="hero">
+  <div class="hero-content">
+    <span class="hero-eyebrow">Verlorene Welten</span>
+    <p class="hero-statement">Jeden Tag verschwinden Arten für immer.<br>Tiere. Pflanzen. Für immer.</p>
+    <div class="hero-number">47.000+</div>
+    <div class="hero-number-label">bedrohte Arten weltweit</div>
+  </div>
+  <button id="scroll-nudge" class="scroll-nudge" aria-label="Zur Karte scrollen">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16m0 0l-6-6m6 6l6-6"/></svg>
+    Erkunde die Welten
+  </button>
+</section>
+
+<!-- ================= EBENE 2: WELTKARTE ================= -->
+<section class="map-section" id="karte-anchor">
+  <div class="map-header">
+    <h2>Wo unsere Botschafter leben</h2>
+    <p><span id="sichtbar-count">24</span> von <span id="gesamt-count">24</span> Arten sichtbar — filtere nach Region oder Bedrohungsstufe.</p>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group" id="filter-region"></div>
+  </div>
+  <div class="filters">
+    <div class="filter-group" id="filter-kategorie">
+      <button class="pill active" data-cat="CR">🔴 CR — Kritisch gefährdet</button>
+      <button class="pill active" data-cat="EN">🟠 EN — Gefährdet</button>
+      <button class="pill active" data-cat="VU">🟡 VU — Anfällig</button>
+    </div>
+  </div>
+
+  <div id="karte"></div>
+  <p class="legend-caption">Klicke auf einen Punkt für Details zu dieser Art.</p>
+</section>
+
+<!-- ================= INFOBEREICH ================= -->
+<section class="info-section">
+  <div class="info-grid">
+    <div class="info-block">
+      <h3>Was ist die IUCN Red List?</h3>
+      <p>Die weltweit wichtigste Datenbank für den Gefährdungsstatus von Arten. Seit 1964 bewertet die IUCN (International Union for Conservation of Nature) systematisch, wie stark eine Art vom Aussterben bedroht ist — inzwischen über 172.600 Arten, jährlich aktualisiert.</p>
+      <p><a href="https://www.iucnredlist.org" target="_blank" rel="noopener">iucnredlist.org →</a></p>
+    </div>
+    <div class="info-block">
+      <h3>Was bedeuten CR, EN, VU?</h3>
+      <div class="status-legend">
+        <div class="item"><span class="status-dot" style="background:var(--cr)"></span> CR — Vom Aussterben bedroht</div>
+        <div class="item"><span class="status-dot" style="background:var(--en)"></span> EN — Stark gefährdet</div>
+        <div class="item"><span class="status-dot" style="background:var(--vu)"></span> VU — Anfällig / erhöhtes Risiko</div>
+      </div>
+      <p style="margin-top:12px">Dieselben Farben findest du auch auf der Karte oben wieder.</p>
+    </div>
+    <div class="info-block wide">
+      <h3>Warum stirbt so viel aus?</h3>
+      <div class="cause-grid">
+        <div class="cause-card"><span class="emoji">🪓</span><strong>Habitatverlust</strong><br>Wälder, Feuchtgebiete und Prärien werden für Landwirtschaft und Siedlungen zerstört.</div>
+        <div class="cause-card"><span class="emoji">🌡️</span><strong>Klimawandel</strong><br>Veränderte Temperaturen und Niederschläge verschieben oder zerstören Lebensräume.</div>
+        <div class="cause-card"><span class="emoji">🎯</span><strong>Wilderei</strong><br>Illegaler Handel mit Tierteilen, Hörnern und exotischen Pflanzen.</div>
+        <div class="cause-card"><span class="emoji">🎣</span><strong>Überfischung</strong><br>Industrielle Fischerei entnimmt Bestände schneller, als sie sich erholen können.</div>
+        <div class="cause-card"><span class="emoji">🐀</span><strong>Invasive Arten</strong><br>Eingeschleppte Räuber und Konkurrenten ohne natürliche Feinde.</div>
+      </div>
+    </div>
+    <div class="info-block wide">
+      <h3>Warum Botschafter-Arten?</h3>
+      <p>Nicht Vollständigkeit, sondern Tiefe. Unsere 24 Botschafter — 12 Tiere, 12 Pflanzen — stehen stellvertretend für über 47.000 bedrohte Arten weltweit. Jede einzelne hat ihre eigene Geschichte, ihre eigene Bedrohung, ihre eigene Chance auf Erholung.</p>
+      <h3 style="margin-top:28px">Was kannst du tun?</h3>
+      <div class="cta-links">
+        <a href="https://www.worldwildlife.org" target="_blank" rel="noopener">WWF →</a>
+        <a href="https://www.iucnredlist.org/campaigns" target="_blank" rel="noopener">IUCN Kampagnen →</a>
+        <a href="https://www.iucn.org/our-work/topic/nature-based-solutions" target="_blank" rel="noopener">Naturschutz vor Ort →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  Verlorene Welten — Interaktive Medien (INME), Bachelor Medienmanagement, Sommersemester 2026.<br>
+  Datenquellen: IUCN Red List, WWF, GBIF, Wikimedia Commons.
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
