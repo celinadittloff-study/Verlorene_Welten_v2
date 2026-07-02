@@ -64,7 +64,7 @@ async function onThemeChange() {
   document.getElementById('toggle-pflanze').classList.toggle('active', aktuellerTyp() === 'pflanze');
   document.getElementById('typ-label').textContent = aktuellerTyp() === 'tier' ? 'Tierarten' : 'Pflanzenarten';
   renderCauses();
-  animiereZahl(); // Zahl beim Wechsel Tiere/Pflanzen neu hochzählen lassen
+  animiereZahl();
   await initHero();
   renderMarker();
 }
