@@ -8,30 +8,9 @@ let aktiveRegion = 'Alle';
 let aktiveKategorien = new Set(['CR', 'EN', 'VU']);
 
 const REGIONEN = ['Alle', 'Afrika', 'Asien', 'Amerika', 'Ozeanien', 'Europa']; // nur Kontinente, kein "Ozean"
-const GESAMTZAHL = 47000;
 
-const CAUSES = {
-  tier: {
-    heading: 'Warum sterben Tierarten aus?',
-    items: [
-      ['Wilderei', 'Illegaler Handel mit Elfenbein, Hörnern und Fellen — von Amur-Leopard bis Waldelefant.'],
-      ['Habitatverlust', 'Regenwälder und Lebensräume weichen Landwirtschaft, Holzeinschlag und Siedlungen.'],
-      ['Klimawandel', 'Schmelzendes Meereis, veränderte Meeresströmungen und Wetterextreme bedrohen ganze Ökosysteme.'],
-      ['Beifang & Überfischung', 'Vaquita, Lederschildkröte und Europäischer Aal sterben oft unbeabsichtigt in Fischernetzen.'],
-      ['Krankheiten', 'Eingeschleppte Erreger wie Staupe oder Pilzinfektionen können kleine Restpopulationen auslöschen.'],
-    ],
-  },
-  pflanze: {
-    heading: 'Warum sterben Pflanzenarten aus?',
-    items: [
-      ['Habitatverlust', 'Abholzung und Umwandlung in Acker- oder Weideland zerstören Wälder und Trockengebiete.'],
-      ['Illegale Wildentnahme', 'Seltene Sukkulenten, Orchideen und alte Bäume werden für den Sammlermarkt geplündert.'],
-      ['Klimawandel', 'Veränderte Niederschlagsmuster und Dürren gefährden hochspezialisierte Pflanzen.'],
-      ['Krankheiten & Schädlinge', 'Eingeschleppte Pilze wie Kauri-Dieback zerstören ganze Baumbestände ohne Heilmittel.'],
-      ['Fehlende Verjüngung', 'Weidetiere fressen Sämlinge, bevor sie nachwachsen können — Bestände altern ohne Nachwuchs.'],
-    ],
-  },
-};
+let GESAMTZAHL = 47000; // Fallback, wird beim Start durch echten Wert aus Supabase ersetzt
+let CAUSES = { tier: { items: [] }, pflanze: { items: [] } }; // wird beim Start aus Supabase geladen
 
 function aktuellerTyp() {
   return ThemeManager.getTheme();
@@ -45,6 +24,8 @@ async function initHero() {
 
 function animiereZahl() {
   const el = document.getElementById('hero-number');
+  el.classList.remove('done');
+  el.textContent = '0';
   const dauer = 2200;
   const start = performance.now();
   function frame(now) {
@@ -83,15 +64,41 @@ async function onThemeChange() {
   document.getElementById('toggle-pflanze').classList.toggle('active', aktuellerTyp() === 'pflanze');
   document.getElementById('typ-label').textContent = aktuellerTyp() === 'tier' ? 'Tierarten' : 'Pflanzenarten';
   renderCauses();
+  animiereZahl(); // Zahl beim Wechsel Tiere/Pflanzen neu hochzählen lassen
   await initHero();
   renderMarker();
 }
 
-/* ---------- Warum stirbt so viel aus? (typabhängig) ---------- */
+/* ---------- Warum stirbt so viel aus? (typabhängig, aus Supabase) ---------- */
+async function ladeCauses() {
+  const { data, error } = await supabaseClient.from('aussterbeursachen').select('*').order('reihenfolge');
+  if (error) { console.error('ladeCauses:', error); return; }
+  CAUSES = { tier: { items: [] }, pflanze: { items: [] } };
+  (data || []).forEach(row => CAUSES[row.typ].items.push([row.titel, row.beschreibung]));
+}
+
+async function ladeGesamtzahl() {
+  const { data, error } = await supabaseClient.from('einstellungen').select('wert').eq('schluessel', 'gesamtzahl_bedrohte_arten').single();
+  if (!error && data) GESAMTZAHL = parseInt(data.wert, 10);
+}
+
+/* ---------- CR/EN/VU-Kästen (aus Supabase, nicht hartcodiert) ---------- */
+async function renderKategorieBoxen() {
+  const { data, error } = await supabaseClient.from('kategorien').select('*').order('code', { ascending: false }); // CR, EN, VU
+  if (error) { console.error('renderKategorieBoxen:', error); return; }
+  document.getElementById('kategorie-boxes').innerHTML = (data || []).map(k => `
+    <div class="kategorie-box ${k.code}">
+      <div class="code">${k.code}</div>
+      <div class="full">${k.vollname}</div>
+      <div class="crit">${k.kriterien}</div>
+    </div>`).join('');
+}
+
 function renderCauses() {
   const typ = aktuellerTyp();
   const data = CAUSES[typ];
-  document.getElementById('cause-heading').textContent = data.heading;
+  document.getElementById('cause-heading').textContent =
+    typ === 'tier' ? 'Warum sterben Tierarten aus?' : 'Warum sterben Pflanzenarten aus?';
   document.getElementById('cause-grid').innerHTML = data.items.map(([titel, text]) =>
     `<div class="cause-card"><strong>${titel}</strong>${text}</div>`).join('');
 }
@@ -225,15 +232,12 @@ function initScrollNudge() {
   });
 }
 
-/* ---------- Scroll-Reveal-Animationen ---------- */
+/* ---------- Scroll-Reveal-Animationen (wiederholt sich bei jedem Rein-/Rausscrollen) ---------- */
 function initScrollReveal() {
   const targets = document.querySelectorAll('.reveal, .reveal-stagger');
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in');
-        obs.unobserve(entry.target);
-      }
+      entry.target.classList.toggle('in', entry.isIntersecting);
     });
   }, { threshold: 0.15 });
   targets.forEach(t => obs.observe(t));
@@ -243,6 +247,7 @@ function initScrollReveal() {
 (async function start() {
   initControlbar();
   initScrollNudge();
+  await Promise.all([ladeCauses(), ladeGesamtzahl(), renderKategorieBoxen()]);
   animiereZahl();
   renderCauses();
   initScrollReveal();
