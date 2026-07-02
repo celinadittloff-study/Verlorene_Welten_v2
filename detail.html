@@ -16,13 +16,17 @@
 </head>
 <body>
 
-<div class="controlbar">
-  <button id="toggle-mode">Dunkel</button>
+<div class="topbar">
+  <a class="topbar-logo" href="index.html">Verlorene <span class="accent">Welten</span></a>
+  <div class="topbar-nav">
+    <a class="startseite" href="index.html">Startseite</a>
+    <div class="sep"></div>
+    <button id="toggle-mode">Dunkel</button>
+  </div>
 </div>
 
 <header class="detail-header" id="detail-header">
   <div class="detail-header-content">
-    <a class="back-link" href="index.html">← Zurück zur Karte</a>
     <span class="badge" id="badge-kategorie"></span>
     <h1 class="name-de" id="name-de">Lädt…</h1>
     <p class="name-sci" id="name-sci"></p>
@@ -38,12 +42,10 @@
   <!-- Was ist das für eine Art? -->
   <section class="detail-section">
     <h2>Was ist das für eine Art?</h2>
-    <p id="botschafter-text" style="font-size:1.1rem"></p>
 
     <div class="fact-grid" id="fact-grid">
       <div class="fact-card"><div class="label">Gruppe</div><div class="value" id="fact-gruppe">—</div></div>
       <div class="fact-card" id="fact-ernaehrung-card"><div class="label">Ernährung</div><div class="value" id="fact-ernaehrung">—</div></div>
-      <div class="fact-card" id="fact-sozial-card"><div class="label">Sozialverhalten</div><div class="value" id="fact-sozial">—</div></div>
       <div class="fact-card"><div class="label">Lebensraum</div><div class="value" id="fact-lebensraum">—</div></div>
       <div class="fact-card"><div class="label">Existiert seit</div><div class="value" id="fact-seit">—</div></div>
     </div>
