@@ -2,11 +2,12 @@
    Verlorene Welten — style.css (v4, Feedback-Runde 3)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600&display=swap');
 
 :root {
   --font-display: 'Montserrat', 'Inter', sans-serif;
   --font-body: 'Inter', 'Montserrat', sans-serif;
+  --font-serif: 'Playfair Display', 'Montserrat', serif;
 
   --tiere-1: #021e4a; --tiere-2: #06467a; --tiere-3: #198abc; --tiere-4: #9cc8d8; --tiere-5: #d7e8ef;
   --pflanzen-1: #162623; --pflanzen-2: #395143; --pflanzen-3: #658f47; --pflanzen-4: #aec1ab; --pflanzen-5: #d2dedc;
@@ -55,7 +56,7 @@ html { scroll-behavior: smooth; }
 body {
   margin: 0; font-family: var(--font-body); color: var(--text);
   /* ganz leichter Verlauf statt Flat-Color, damit es v.a. auf den Detailseiten nicht eintönig wirkt */
-  background: linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 90%, var(--grad-tint) 10%) 100%);
+  background: linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 76%, var(--grad-tint) 24%) 100%);
   background-attachment: fixed;
   transition: background 0.4s ease, color 0.4s ease;
   -webkit-font-smoothing: antialiased;
@@ -82,30 +83,39 @@ img { max-width: 100%; display: block; }
 .reveal-stagger.in > *:nth-child(5) { transition-delay: 0.27s; }
 
 /* ==========================================================================
-   Steuerleiste
+   Menüband — persistente Kopfzeile auf allen Seiten
    ========================================================================== */
-.controlbar {
-  position: fixed; top: 20px; right: 20px; z-index: 500; display: flex; gap: 2px;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px;
+.topbar {
+  position: sticky; top: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
 }
-.controlbar button {
+.topbar-logo {
+  font-family: var(--font-serif); font-weight: 800; font-size: 1.2rem;
+  color: var(--text); text-decoration: none; letter-spacing: -0.01em;
+}
+.topbar-logo .accent { color: var(--accent); }
+.topbar-nav { display: flex; align-items: center; gap: 2px; }
+.topbar-nav button, .topbar-nav a.startseite {
   border: none; background: transparent; color: var(--text-muted);
   font-family: var(--font-body); font-size: 0.82rem; font-weight: 600;
-  padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  padding: 8px 16px; border-radius: 999px; cursor: pointer; text-decoration: none;
   transition: background var(--transition), color var(--transition), transform 0.15s;
 }
-.controlbar button.active { background: var(--accent); color: var(--accent-contrast); }
-.controlbar button:hover:not(.active) { color: var(--text); }
-.controlbar button:active { transform: scale(0.94); }
-.controlbar .sep { width: 1px; background: var(--border); margin: 4px 4px; }
+.topbar-nav button.active { background: var(--accent); color: var(--accent-contrast); }
+.topbar-nav button:hover:not(.active), .topbar-nav a.startseite:hover { color: var(--text); }
+.topbar-nav button:active { transform: scale(0.94); }
+.topbar-nav .sep { width: 1px; height: 20px; background: var(--border); margin: 0 6px; }
 
 /* ==========================================================================
    Ebene 1 — Hero: unterscheidet sich jetzt bewusst zwischen Dark/Light,
    bleibt aber in beiden Fällen kontrastreich lesbar (Text-Halo statt Vollflächen-Verdunkelung)
    ========================================================================== */
 .hero {
-  position: relative; min-height: 100svh;
+  position: relative; min-height: calc(100svh - 60px);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; padding: 32px 20px; overflow: hidden;
   background: #0a0f14;
@@ -113,9 +123,7 @@ img { max-width: 100%; display: block; }
 .hero-image {
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
-  animation: heroZoom 20s ease-in-out infinite alternate;
 }
-@keyframes heroZoom { from { transform: scale(1); } to { transform: scale(1.06); } }
 
 /* Dark Mode: dunkler Verlauf, weißer Text */
 html[data-mode="dark"] .hero-image { filter: brightness(0.5) saturate(0.9); }
@@ -142,9 +150,9 @@ html[data-mode="light"] .hero-number { color: #4a1512; text-shadow: 0 0 18px rgb
 html[data-mode="light"] .hero-number.done { color: #8c1912; text-shadow: 0 0 22px rgba(255,255,255,0.9), 0 0 50px rgba(140,25,18,0.25); }
 
 .hero-content { position: relative; z-index: 2; max-width: 900px; }
-.hero-title { font-size: clamp(1.8rem, 4vw, 2.75rem); margin-bottom: 0.3em; opacity: 0; animation: heroIn 0.9s var(--ease-out) 0.15s forwards; }
+.hero-title { font-size: clamp(1rem, 2vw, 1.25rem); font-weight: 800; margin-bottom: 0.3em; opacity: 0; animation: heroIn 0.9s var(--ease-out) 0.15s forwards; }
 .hero-number {
-  font-family: var(--font-display); font-weight: 900;
+  font-family: var(--font-serif); font-weight: 900;
   font-size: clamp(4rem, 14vw, 9.5rem); line-height: 1; margin: 0.15em 0;
   font-variant-numeric: tabular-nums;
   transition: color 0.8s ease, text-shadow 0.8s ease;
@@ -155,25 +163,30 @@ html[data-mode="light"] .hero-number.done { color: #8c1912; text-shadow: 0 0 22p
 @keyframes heroIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
 .scroll-nudge {
-  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
   background: none; border: none; padding: 0; cursor: pointer;
-  font-family: var(--font-body); font-size: 0.85rem; font-weight: 500;
-  opacity: 0; animation: fadeInNudge 0.8s ease 1.4s forwards; z-index: 2;
+  font-family: var(--font-body); font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  opacity: 0; animation: fadeInNudge 0.8s ease 4s forwards; z-index: 2;
 }
 html[data-mode="dark"] .scroll-nudge { color: rgba(255,255,255,0.75); }
 html[data-mode="dark"] .scroll-nudge:hover { color: #fff; }
 html[data-mode="light"] .scroll-nudge { color: rgba(20,17,13,0.75); text-shadow: 0 0 12px rgba(255,255,255,0.7); }
 html[data-mode="light"] .scroll-nudge:hover { color: #14110d; }
-.scroll-nudge svg { animation: bob 2s ease-in-out infinite; }
+.scroll-nudge .line { width: 1px; height: 42px; background: currentColor; opacity: 0.3; position: relative; overflow: hidden; }
+.scroll-nudge .line::after {
+  content: ''; position: absolute; left: 0; top: -42px; width: 100%; height: 42px; background: var(--c3);
+  animation: lineDrop 1.8s ease-in-out infinite;
+}
 @keyframes fadeInNudge { to { opacity: 1; } }
-@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+@keyframes lineDrop { 0% { top: -42px; } 100% { top: 42px; } }
 
 /* ==========================================================================
    Botschafter-Intro
    ========================================================================== */
 .botschafter-intro { max-width: 720px; margin: 0 auto; padding: 72px 24px 0; text-align: center; }
-.botschafter-intro .kicker { font-family: var(--font-display); font-size: clamp(2.4rem, 5.5vw, 3.6rem); font-weight: 600; margin-bottom: 6px; }
+.botschafter-intro .kicker { font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800; margin-bottom: 8px; }
 .botschafter-intro .sub { font-size: 1.05rem; color: var(--text-muted); margin-bottom: 18px; }
 .botschafter-intro p.desc { color: var(--text-muted); font-size: 1.02rem; }
 
@@ -244,17 +257,18 @@ html[data-mode="light"] .scroll-nudge:hover { color: #14110d; }
 .info-block p { color: var(--text-muted); }
 
 .kategorie-boxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 14px; margin-top: 18px; }
-.kategorie-box { border-radius: var(--radius-m); padding: 20px; border: 1.5px solid; background: transparent; }
-.kategorie-box.CR { border-color: var(--cr); }
-.kategorie-box.EN { border-color: var(--en); }
-.kategorie-box.VU { border-color: var(--vu); }
+.kategorie-box { border-radius: var(--radius-m); padding: 20px; border: 1.5px solid; transition: transform 0.2s, border-color 0.2s; }
+.kategorie-box.CR { border-color: var(--cr); background: color-mix(in srgb, var(--cr) 10%, transparent); }
+.kategorie-box.EN { border-color: var(--en); background: color-mix(in srgb, var(--en) 10%, transparent); }
+.kategorie-box.VU { border-color: var(--vu); background: color-mix(in srgb, var(--vu) 12%, transparent); }
+.kategorie-box:hover { transform: translateY(-2px); }
 .kategorie-box .code { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; margin-bottom: 4px; color: var(--text); }
 .kategorie-box .full { font-weight: 600; margin-bottom: 10px; color: var(--text); }
 .kategorie-box .crit { font-size: 0.85rem; color: var(--text-muted); }
 
 .two-col { display: grid; gap: 32px; }
 .cause-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 12px; margin-top: 14px; }
-.cause-card { background: transparent; border: 1px solid var(--border); border-radius: var(--radius-m); padding: 18px; font-size: 0.86rem; color: var(--text-muted); transition: border-color 0.2s, transform 0.2s; }
+.cause-card { background: color-mix(in srgb, var(--accent) 8%, transparent); border: 1px solid var(--border); border-radius: var(--radius-m); padding: 18px; font-size: 0.86rem; color: var(--text-muted); transition: border-color 0.2s, transform 0.2s; }
 .cause-card:hover { border-color: var(--accent); transform: translateY(-2px); }
 .cause-card strong { display: block; margin-bottom: 6px; color: var(--text); }
 
@@ -334,7 +348,7 @@ html[data-mode="light"] .back-link { color: var(--c1); text-shadow: 0 0 18px rgb
 .data-table tr.aktiv td { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 
 .threat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 16px; }
-.threat-card { background: transparent; border: 1px solid var(--border); border-radius: var(--radius-l); padding: 20px; transition: border-color 0.2s, transform 0.2s; }
+.threat-card { background: color-mix(in srgb, var(--accent) 6%, transparent); border: 1px solid var(--border); border-radius: var(--radius-l); padding: 20px; transition: border-color 0.2s, transform 0.2s; }
 .threat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
 .threat-card .sev { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin-bottom: 10px; background: transparent; border: 1.5px solid; color: var(--text); }
 .threat-card .sev.Hoch { border-color: var(--cr); background: color-mix(in srgb, var(--cr) 15%, transparent); }
@@ -344,7 +358,25 @@ html[data-mode="light"] .back-link { color: var(--c1); text-shadow: 0 0 18px rgb
 .threat-card p { font-size: 0.86rem; color: var(--text-muted); margin-bottom: 8px; }
 .threat-card .measures { font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; color: var(--text-muted); }
 
-.project-card { background: transparent; border: 1px solid var(--border); border-radius: var(--radius-l); padding: 28px; display: flex; flex-direction: column; gap: 12px; }
+.project-card {
+  position: relative; overflow: hidden;
+  border: 1px solid var(--border); border-radius: var(--radius-l); padding: 28px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.project-card::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: var(--project-bg-image, none);
+  background-size: cover; background-position: center;
+  filter: blur(14px) brightness(0.55) saturate(0.9);
+  transform: scale(1.15); /* verhindert sichtbare unscharfe Ränder */
+  z-index: 0;
+}
+.project-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  z-index: 0;
+}
+.project-card > * { position: relative; z-index: 1; }
 .project-card a.btn-more { width: fit-content; padding: 12px 24px; }
 
 .gallery { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
