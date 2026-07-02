@@ -173,7 +173,7 @@ html[data-mode="light"] .scroll-nudge:hover { color: #14110d; }
    Botschafter-Intro
    ========================================================================== */
 .botschafter-intro { max-width: 720px; margin: 0 auto; padding: 72px 24px 0; text-align: center; }
-.botschafter-intro .kicker { font-size: clamp(2.4rem, 5.5vw, 3.6rem); font-weight: 900; margin-bottom: 6px; }
+.botschafter-intro .kicker { font-family: var(--font-display); font-size: clamp(2.4rem, 5.5vw, 3.6rem); font-weight: 600; margin-bottom: 6px; }
 .botschafter-intro .sub { font-size: 1.05rem; color: var(--text-muted); margin-bottom: 18px; }
 .botschafter-intro p.desc { color: var(--text-muted); font-size: 1.02rem; }
 
@@ -265,20 +265,30 @@ html[data-mode="light"] .scroll-nudge:hover { color: #14110d; }
 footer.site-footer { text-align: center; padding: 28px 20px; font-size: 0.75rem; color: var(--text-muted); }
 
 /* ==========================================================================
-   Detailseite — Header IMMER dunkel (unabhängig vom Modus), da hier
-   der Foto-Titel höchste Priorität hat und nicht mit variabler
-   Foto-Helligkeit + Lightmode kollidieren darf
+   Detailseite — Header passt sich jetzt dem Modus an (Dark: heller Text auf
+   dunklem Verlauf / Light: dunkler Text auf hellerem Verlauf), damit der
+   Titel in beiden Modi lesbar bleibt.
    ========================================================================== */
 .detail-header {
   position: relative; min-height: 56vh; display: flex; align-items: flex-end;
   background-size: cover; background-position: center; padding: 40px 24px;
 }
-.detail-header::before { content:''; position:absolute; inset:0; background:#04070a; opacity:0.4; }
-.detail-header::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, #04070a 96%); }
+html[data-mode="dark"] .detail-header::before { content:''; position:absolute; inset:0; background:#04070a; opacity:0.45; }
+html[data-mode="dark"] .detail-header::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, var(--bg) 96%); }
+html[data-mode="dark"] .detail-header .name-de,
+html[data-mode="dark"] .detail-header .name-sci,
+html[data-mode="dark"] .back-link { color: #fff; text-shadow: 0 2px 16px rgba(0,0,0,0.5); }
+
+html[data-mode="light"] .detail-header::before { content:''; position:absolute; inset:0; background:#fff; opacity:0.55; }
+html[data-mode="light"] .detail-header::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, var(--bg) 96%); }
+html[data-mode="light"] .detail-header .name-de,
+html[data-mode="light"] .detail-header .name-sci,
+html[data-mode="light"] .back-link { color: var(--c1); text-shadow: 0 0 18px rgba(255,255,255,0.9), 0 0 34px rgba(255,255,255,0.7); }
+
 .detail-header-content { position: relative; z-index: 2; max-width: 780px; margin: 0 auto; width: 100%; }
-.detail-header .name-de { font-size: clamp(2rem, 5vw, 3.4rem); color: #fff; }
-.detail-header .name-sci { font-style: italic; color: rgba(255,255,255,0.85); font-size: 1.1rem; }
-.back-link { position: relative; z-index: 2; display: inline-flex; gap: 6px; align-items: center; color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-bottom: 20px; }
+.detail-header .name-de { font-size: clamp(2rem, 5vw, 3.4rem); }
+.detail-header .name-sci { font-style: italic; font-size: 1.1rem; opacity: 0.85; }
+.back-link { position: relative; z-index: 2; display: inline-flex; gap: 6px; align-items: center; text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-bottom: 20px; }
 
 .detail-section { max-width: 780px; margin: 0 auto; padding: 56px 24px; }
 .detail-section + .detail-section { border-top: 1px solid var(--border); }
@@ -326,10 +336,10 @@ footer.site-footer { text-align: center; padding: 28px 20px; font-size: 0.75rem;
 .threat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 16px; }
 .threat-card { background: transparent; border: 1px solid var(--border); border-radius: var(--radius-l); padding: 20px; transition: border-color 0.2s, transform 0.2s; }
 .threat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.threat-card .sev { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin-bottom: 10px; color: #fff; }
-.threat-card .sev.Hoch { background: var(--cr); }
-.threat-card .sev.Mittel { background: var(--en); }
-.threat-card .sev.Niedrig { background: var(--vu); color: #1a1a1a; }
+.threat-card .sev { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin-bottom: 10px; background: transparent; border: 1.5px solid; color: var(--text); }
+.threat-card .sev.Hoch { border-color: var(--cr); background: color-mix(in srgb, var(--cr) 15%, transparent); }
+.threat-card .sev.Mittel { border-color: var(--en); background: color-mix(in srgb, var(--en) 15%, transparent); }
+.threat-card .sev.Niedrig { border-color: var(--vu); background: color-mix(in srgb, var(--vu) 17%, transparent); }
 .threat-card h4 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 8px; }
 .threat-card p { font-size: 0.86rem; color: var(--text-muted); margin-bottom: 8px; }
 .threat-card .measures { font-size: 0.8rem; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; color: var(--text-muted); }
