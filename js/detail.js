@@ -4,6 +4,8 @@
 
 let popChart;
 let numPop = [];
+let gebietBasistext = '—';
+let gebietHistorischNote = null; // nur gesetzt, wenn echte historisch+aktuell-Quellendaten vorliegen
 
 function qs(name) {
   return new URLSearchParams(window.location.search).get(name);
@@ -21,6 +23,19 @@ function formatJahr(n) {
 function formatZahl(n) {
   // Für die KPI-Kachel: normale deutsche Tausendertrennung ist hier gewünscht (Anzeige der Größenordnung)
   return Math.round(n).toLocaleString('de-DE');
+}
+
+/** Grobe Flächenschätzung eines Polygons aus echten lat/lng-Punkten (Shoelace-Formel).
+ *  Nur für einen relativen Vergleich (historisch vs. aktuell) gedacht, nicht für exakte km². */
+function polygonFlaeche(punkte) {
+  if (!punkte || punkte.length < 3) return 0;
+  let summe = 0;
+  for (let i = 0; i < punkte.length; i++) {
+    const [lat1, lng1] = punkte[i];
+    const [lat2, lng2] = punkte[(i + 1) % punkte.length];
+    summe += lng1 * lat2 - lng2 * lat1;
+  }
+  return Math.abs(summe / 2);
 }
 
 function renderThreatCard(b) {
@@ -58,6 +73,10 @@ function updateZeitregler(index) {
   animiereKpi('kpi-anzahl', letzterAnzahlWert ?? punkt.wert, punkt.wert);
   letzterAnzahlWert = punkt.wert;
 
+  if (gebietHistorischNote) {
+    document.getElementById('kpi-gebiet').textContent = index === 0 ? gebietHistorischNote : gebietBasistext;
+  }
+
   if (popChart) {
     popChart.data.datasets[1].data = [{ x: punkt.jahr, y: punkt.wert }];
     popChart.update('none');
@@ -82,7 +101,7 @@ async function init() {
   const daten = await ladeArtDetail(id);
   if (!daten) { document.getElementById('name-de').textContent = 'Art nicht gefunden.'; return; }
 
-  const { art, bilder, bedrohungen, populationsdaten } = daten;
+  const { art, bilder, bedrohungen, populationsdaten, verbreitung } = daten;
 
   document.documentElement.setAttribute('data-theme', art.typ === 'tier' ? 'tiere' : 'pflanzen');
 
@@ -101,18 +120,27 @@ async function init() {
       `<img src="${b.url}" alt="${art.name_de}" loading="lazy">`).join('');
   }
 
-  setText('botschafter-text', art.botschafter_text, '');
   setText('fact-gruppe', art.gruppe);
   setText('fact-lebensraum', art.habitat || art.land);
   setText('fact-seit', art.existiert_seit);
   document.getElementById('kpi-gebiet').textContent = art.land || art.habitat || '—';
+  gebietBasistext = art.land || art.habitat || '—';
+
+  // Nur wenn echte, in Supabase hinterlegte historisch+aktuell-Kartendaten existieren,
+  // wird die Kachel beim Reglerbewegen mitgeändert — sonst bleibt sie unverändert.
+  if (verbreitung?.historisch?.length >= 3 && verbreitung?.aktuell?.length >= 3) {
+    const flHist = polygonFlaeche(verbreitung.historisch);
+    const flAkt = polygonFlaeche(verbreitung.aktuell);
+    if (flHist > 0 && flAkt > 0 && flHist > flAkt) {
+      const anteil = Math.round((flAkt / flHist) * 100);
+      gebietHistorischNote = `${gebietBasistext} — historisch deutlich größer (heute noch ca. ${anteil}% der damaligen Ausdehnung)`;
+    }
+  }
 
   if (art.typ === 'pflanze') {
-    document.getElementById('fact-sozial-card').remove();
     document.getElementById('fact-ernaehrung-card').remove();
   } else {
     setText('fact-ernaehrung', art.ernaehrung);
-    setText('fact-sozial', art.sozialverhalten);
   }
 
   setText('prose-besonderheiten', art.besonderheiten, 'Keine Angaben hinterlegt.');
@@ -233,6 +261,9 @@ async function init() {
 
   setText('schutz-name', art.schutzprojekt_name);
   setText('schutz-text', art.hauptbedrohung ? `Hauptbedrohung: ${art.hauptbedrohung}` : '', '');
+  if (hauptbild) {
+    document.querySelector('.project-card').style.setProperty('--project-bg-image', `url("${hauptbild}")`);
+  }
   const schutzLink = document.getElementById('schutz-link');
   if (art.schutzprojekt_url) { schutzLink.href = art.schutzprojekt_url; } else { schutzLink.style.display = 'none'; }
   const iucnLink = document.getElementById('iucn-link');
