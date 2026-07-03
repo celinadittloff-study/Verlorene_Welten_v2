@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="tiere" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verlorene Welten — Artdetails</title>
+<script>
+  (function () {
+    var t = localStorage.getItem('vw_theme') || 'tier';
+    var m = localStorage.getItem('vw_mode') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', t === 'tier' ? 'tiere' : 'pflanzen');
+    document.documentElement.setAttribute('data-mode', m);
+  })();
+</script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-logo" href="index.html">Verlorene <span class="accent">Welten</span></a>
+  <div class="topbar-nav">
+    <a class="startseite" href="index.html">Startseite</a>
+    <div class="sep"></div>
+    <button id="toggle-mode">Dunkel</button>
+  </div>
+</div>
+
+<header class="detail-header" id="detail-header">
+  <div class="detail-header-content">
+    <span class="badge" id="badge-kategorie"></span>
+    <h1 class="name-de" id="name-de">Lädt…</h1>
+    <p class="name-sci" id="name-sci"></p>
+  </div>
+</header>
+
+<main id="content" style="display:none">
+
+  <section class="detail-section" id="galerie-section" style="display:none">
+    <div class="gallery" id="galerie"></div>
+  </section>
+
+  <!-- Was ist das für eine Art? -->
+  <section class="detail-section">
+    <h2>Was ist das für eine Art?</h2>
+
+    <div class="fact-grid" id="fact-grid">
+      <div class="fact-card"><div class="label">Gruppe</div><div class="value" id="fact-gruppe">—</div></div>
+      <div class="fact-card" id="fact-ernaehrung-card"><div class="label">Ernährung</div><div class="value" id="fact-ernaehrung">—</div></div>
+      <div class="fact-card"><div class="label">Lebensraum</div><div class="value" id="fact-lebensraum">—</div></div>
+      <div class="fact-card"><div class="label">Existiert seit</div><div class="value" id="fact-seit">—</div></div>
+    </div>
+
+    <div class="prose-block">
+      <h3>Besonderheiten</h3>
+      <p id="prose-besonderheiten"></p>
+    </div>
+    <div class="prose-block">
+      <h3>Ökologische Rolle</h3>
+      <p id="prose-oekologie"></p>
+    </div>
+  </section>
+
+  <!-- Historische Entwicklung -->
+  <section class="detail-section">
+    <h2>Historische Entwicklung</h2>
+    <p class="chart-sub">Bewege den Regler über die dokumentierten Jahre.</p>
+    <p class="chart-sub" id="chart-erklaerung" style="font-size:0.88rem"></p>
+
+    <div class="timeline-controls">
+      <input type="range" id="zeitregler" min="0" max="0" value="0" step="1">
+    </div>
+    <div class="timeline-labels"><span id="jahr-min"></span><span id="jahr-max"></span></div>
+
+    <div class="kpi-row">
+      <div class="kpi-tile">
+        <div class="kpi-label">Anzahl</div>
+        <div class="kpi-value" id="kpi-anzahl">—</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Jahr</div>
+        <div class="kpi-value" id="kpi-jahr">—</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Verbreitungsgebiet</div>
+        <div class="kpi-value" id="kpi-gebiet" style="font-size:1rem">—</div>
+      </div>
+    </div>
+
+    <div class="pop-chart-wrap">
+      <canvas id="pop-chart" height="110"></canvas>
+    </div>
+
+    <table class="data-table" id="daten-tabelle">
+      <thead><tr><th>Jahr</th><th>Kontext</th><th>Quelle</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Bedrohungen -->
+  <section class="detail-section">
+    <h2>Hauptbedrohungen</h2>
+    <div class="threat-cards" id="threat-cards"></div>
+  </section>
+
+  <!-- Schutzprojekt -->
+  <section class="detail-section">
+    <h2>Was wird getan?</h2>
+    <div class="project-card">
+      <h3 id="schutz-name">—</h3>
+      <p id="schutz-text"></p>
+      <a class="btn-more" id="schutz-link" href="#" target="_blank" rel="noopener">Zur Schutzorganisation →</a>
+    </div>
+    <p style="margin-top:20px; font-size:0.85rem">
+      <a id="iucn-link" href="#" target="_blank" rel="noopener">→ Offizieller IUCN Red List Eintrag</a>
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  Verlorene Welten — Interaktive Medien (INME), Bachelor Medienmanagement, Sommersemester 2026.
+</footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="js/config.js"></script>
+<script src="js/detail.js"></script>
+</body>
+</html>

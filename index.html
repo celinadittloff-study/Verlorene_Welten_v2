@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="tiere" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verlorene Welten — 47.000+ bedrohte Arten, 24 Botschafter</title>
+<meta name="description" content="Eine interaktive Karte bedrohter Tier- und Pflanzenarten. 24 Botschafter stellvertretend für über 47.000 bedrohte Spezies weltweit.">
+<script>
+  (function () {
+    var t = localStorage.getItem('vw_theme') || 'tier';
+    var m = localStorage.getItem('vw_mode') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', t === 'tier' ? 'tiere' : 'pflanzen');
+    document.documentElement.setAttribute('data-mode', m);
+  })();
+</script>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-logo" href="index.html">Verlorene <span class="accent">Welten</span></a>
+  <div class="topbar-nav">
+    <button id="toggle-tier">Tiere</button>
+    <button id="toggle-pflanze">Pflanzen</button>
+    <div class="sep"></div>
+    <button id="toggle-mode">Dunkel</button>
+  </div>
+</div>
+
+<!-- ================= EBENE 1: EINSTIEGSSEITE ================= -->
+<section class="hero">
+  <div class="hero-image" id="hero-image"></div>
+  <div class="hero-scrim"></div>
+  <div class="hero-content">
+    <p class="hero-title">Verlorene Welten</p>
+    <div class="hero-number" id="hero-number">0</div>
+    <p class="hero-subtext">Tier- und Pflanzenarten weltweit<br>vom Aussterben bedroht.</p>
+    <p class="hero-subtext"><strong>Jede Art zählt.</strong></p>
+  </div>
+  <button id="scroll-nudge" class="scroll-nudge" aria-label="Zur Karte scrollen">
+    Erkunde die Welt
+    <span class="line"></span>
+  </button>
+</section>
+
+<!-- ================= BOTSCHAFTER-INTRO ================= -->
+<section class="botschafter-intro reveal">
+  <p class="kicker">24 Botschafter</p>
+  <p class="sub">stellvertretend für über 47.000 Arten</p>
+  <p class="desc">Wir zeigen nicht alle bedrohten Arten — das wäre eine Liste, keine Geschichte. Stattdessen begleiten dich zwölf Tiere und zwölf Pflanzen, jede mit einer eigenen Geschichte, einer eigenen Bedrohung und einer eigenen Chance auf Erholung.</p>
+</section>
+
+<!-- ================= EBENE 2: WELTKARTE ================= -->
+<section class="map-section" id="karte-anchor">
+  <div class="map-header reveal">
+    <h2>Wo unsere Botschafter leben</h2>
+    <p><span id="sichtbar-count">12</span> von <span id="gesamt-count">12</span> <span id="typ-label">Tierarten</span> sichtbar — filtere nach Kontinent oder Bedrohungsstufe. Fahre mit der Maus über einen Punkt für Details, klicke ihn an, um das Popup zu fixieren.</p>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group" id="filter-region"></div>
+  </div>
+  <div class="filters">
+    <div class="filter-group" id="filter-kategorie">
+      <button class="pill active" data-cat="CR">CR — Kritisch gefährdet</button>
+      <button class="pill active" data-cat="EN">EN — Gefährdet</button>
+      <button class="pill active" data-cat="VU">VU — Anfällig</button>
+    </div>
+  </div>
+
+  <div id="karte"></div>
+  <p class="legend-caption">Klicke auf „Mehr erfahren" im Popup für die vollständige Geschichte einer Art.</p>
+</section>
+
+<!-- ================= INFOBEREICH ================= -->
+<section class="info-section">
+  <div class="info-stack">
+
+    <!-- 1. CR/EN/VU zuerst -->
+    <div class="info-block reveal">
+      <h3>Was bedeuten CR, EN, VU?</h3>
+      <p>Die Kürzel stammen aus dem Englischen und bilden gemeinsam mit vier weiteren Stufen die komplette Gefährdungsskala der IUCN Red List. Jede Stufe ist an mehrere Kriterien geknüpft — unter anderem Bestandsrückgang und Anzahl geschlechtsreifer Individuen:</p>
+      <div class="kategorie-boxes reveal-stagger" id="kategorie-boxes"></div>
+      <p style="margin-top:14px; font-size:0.85rem">Vereinfacht dargestellt — die IUCN prüft zusätzlich Kriterien wie Verbreitungsgebiet und Aussterberisiko.</p>
+    </div>
+
+    <!-- 2. Warum stirbt so viel aus (typabhängig, siehe main.js) -->
+    <div class="info-block reveal">
+      <h3 id="cause-heading">Warum sterben Tierarten aus?</h3>
+      <div class="cause-grid reveal-stagger" id="cause-grid"></div>
+    </div>
+
+    <!-- 3. IUCN Red List | Was kannst du tun -->
+    <div class="two-col">
+      <div class="info-block reveal">
+        <h3>Was ist die IUCN Red List?</h3>
+        <p>Die weltweit wichtigste Datenbank für den Gefährdungsstatus von Arten. Seit 1964 bewertet die International Union for Conservation of Nature (IUCN) systematisch, wie stark eine Art vom Aussterben bedroht ist — inzwischen über 172.600 Arten, jährlich aktualisiert.</p>
+        <p><a href="https://www.iucnredlist.org" target="_blank" rel="noopener">iucnredlist.org →</a></p>
+      </div>
+      <div class="info-block reveal">
+        <h3>Was kannst du tun?</h3>
+        <p>Schutz beginnt mit Wissen. Informiere dich, unterstütze Naturschutzorganisationen, und triff bewusste Konsumentscheidungen — vom Kaffee bis zum Palmöl.</p>
+        <div class="cta-links">
+          <a href="https://www.worldwildlife.org" target="_blank" rel="noopener">WWF →</a>
+          <a href="https://www.iucnredlist.org/campaigns" target="_blank" rel="noopener">IUCN Kampagnen →</a>
+          <a href="https://www.iucn.org/our-work/topic/nature-based-solutions" target="_blank" rel="noopener">Naturschutz vor Ort →</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  Verlorene Welten — Interaktive Medien (INME), Bachelor Medienmanagement, Sommersemester 2026.<br>
+  Datenquellen: IUCN Red List, WWF, GBIF, Wikimedia Commons.
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
