@@ -92,6 +92,14 @@ async function renderKategorieBoxen() {
       <div class="full">${k.vollname}</div>
       <div class="crit">${k.kriterien}</div>
     </div>`).join('');
+  renderKategorieFilter(data || []);
+}
+
+/** Filter-Pills (CR/EN/VU) über der Karte — Text und Reihenfolge kommen aus derselben
+ *  Supabase-Abfrage wie die Kategorie-Boxen, statt in index.html hart codiert zu sein. */
+function renderKategorieFilter(data) {
+  document.getElementById('filter-kategorie').innerHTML = data.map(k => `
+    <button class="pill${aktiveKategorien.has(k.code) ? ' active' : ''}" data-cat="${k.code}">${k.code} — ${k.label}</button>`).join('');
 }
 
 function renderCauses() {
