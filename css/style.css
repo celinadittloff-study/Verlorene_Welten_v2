@@ -113,6 +113,7 @@ img { max-width: 100%; display: block; }
 .hero {
   position: relative; min-height: calc(100svh - 60px);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(24px, 6vh, 72px);
   text-align: center; padding: 32px 20px; overflow: hidden;
   background: #0a0f14;
 }
@@ -145,12 +146,12 @@ img { max-width: 100%; display: block; }
 @keyframes heroIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
 .scroll-nudge {
-  position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
+  position: relative; z-index: 2; flex-shrink: 0;
   display: flex; flex-direction: column; align-items: center; gap: 12px;
   background: none; border: none; padding: 0; cursor: pointer;
   font-family: var(--font-body); font-size: 0.72rem; font-weight: 600;
   letter-spacing: 0.14em; text-transform: uppercase;
-  opacity: 0; animation: fadeInNudge 0.8s ease 4s forwards; z-index: 2;
+  opacity: 0; animation: fadeInNudge 0.8s ease 4s forwards;
   color: rgba(255,255,255,0.8);
 }
 .scroll-nudge:hover { color: #fff; }
